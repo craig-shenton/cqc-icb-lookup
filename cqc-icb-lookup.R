@@ -31,20 +31,25 @@ library(RCurl)
 # File: Care directory with filters (01 November 2022) (ods, 23.03MB, English)
 # Open and save second sheet as .csv file
 
+cqc_data_url <- getURL("https://raw.githubusercontent.com/craig-shenton/cqc-icb-lookup/main/data/01_November_2022_HSCA_Active_Locations.csv")
+cqc_data <- read.csv(text = cqc_data_url)
+
 # Download ICB Codes dataset
 # url <- "https://geoportal.statistics.gov.uk/documents/locations-to-integrated-care-boards-to-nhs-england-region-july-2022-lookup-in-england/about"
 # Section: Locations to Integrated Care Boards to NHS England (Region) (July 2022) Lookup in England
 # File: LOC22_ICB22_NHSER22_EN_LU.xlsx
 
+ons_data_url <- getURL("https://raw.githubusercontent.com/craig-shenton/cqc-icb-lookup/main/data/LOC22_ICB22_NHSER22_EN_LU.csv")
+ons_data <- read.csv(text = ons_data_url)
+
 # Read data from table
 # -------------------------------------------------------------------------
-file_path <- here("data", "01_November_2022_HSCA_Active_Locations.csv")
-df_cqc <- read.csv(file_path, header = TRUE, sep = ",") %>%
+df_cqc <- cqc_data %>%
+  rename(c('Location.ID' = `ï..Location.ID`)) %>%
   filter(`Dormant..Y.N.` == 'N' & `Care.home.` == 'Y')
 
-file_path <- here("data", "LOC22_ICB22_NHSER22_EN_LU.xlsx")
-df_ons <- read_excel(file_path, sheet = "LOC22_ICB22_NHSER22_EN_LU", skip=0) %>%
-  rename(c('Location.ONSPD.CCG.Code' = `LOC22CD`))
+df_ons <- ons_data %>%
+  rename(c('Location.ONSPD.CCG.Code' = `ï..LOC22CD`))
 
 df_codes <- df_cqc %>%
   inner_join(df_ons, by="Location.ONSPD.CCG.Code") %>%
