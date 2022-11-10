@@ -78,6 +78,11 @@ df_codes <- df_cqc %>%
                 "NHSER22NM", 
                 everything())
 
+# Write joined data to .csv
+# -------------------------------------------------------------------------
+writePath <- here("data", "cqc-icb-lookup.csv")
+write.csv(df_codes, writePath, row.names = FALSE)
+
 # Example Queries
 # -------------------------------------------------------------------------
 
@@ -93,7 +98,39 @@ df_suffolk_subicb <- df_codes %>%
 df_domiciliary <- df_codes %>%
   filter(`Service.type...Domiciliary.care.service` == 'Y')
 
-# Write joined data to .csv
-# -------------------------------------------------------------------------
-writePath <- here("data", "cqc-icb-lookup.csv")
-write.csv(df_codes, writePath, row.names = FALSE)
+## 4. local authorities mapped to NHS sub-ICBs
+df_la <- df_codes %>%
+  dplyr::select("Location.Region",
+                "Location.NHS.Region",
+                "Location.Local.Authority",
+                "Location.ONSPD.CCG.Code",
+                "Location.ONSPD.CCG",
+                "LOC22CDH",
+                "LOC22NM",
+                "ICB22CD",
+                "ICB22CDH",
+                "ICB22NM",
+                "NHSER22CD",
+                "NHSER22CDH",
+                "NHSER22NM")
+df_subicb_to_la <- df_la[!duplicated(df_la[ , c("Location.Local.Authority", "LOC22NM")]), ]
+
+writePath <- here("data", "subicb-la-lookup.csv")
+write.csv(df_subicb_to_la, writePath, row.names = FALSE)
+
+## 5. local authorities mapped to NHS ICBs
+df_la2 <- df_codes %>%
+  dplyr::select("Location.Region",
+                "Location.NHS.Region",
+                "Location.Local.Authority",
+                "ICB22CD",
+                "ICB22CDH",
+                "ICB22NM",
+                "NHSER22CD",
+                "NHSER22CDH",
+                "NHSER22NM")
+df_icb_to_la <- df_la2[!duplicated(df_la2[ , c("Location.Local.Authority", "ICB22NM")]), ]
+
+writePath <- here("data", "icb-la-lookup.csv")
+write.csv(df_icb_to_la, writePath, row.names = FALSE)
+
