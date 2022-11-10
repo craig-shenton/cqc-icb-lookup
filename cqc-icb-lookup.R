@@ -22,6 +22,7 @@ library(tidyverse)
 library(tidyr)
 library(dplyr)
 library(readxl)
+library(RCurl)
 
 # Download CQC Codes dataset
 # -------------------------------------------------------------------------
